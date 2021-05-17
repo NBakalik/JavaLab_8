@@ -1,43 +1,41 @@
 package ua.lviv.iot.lab9.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 import ua.lviv.iot.lab9.model.Coffee;
+import ua.lviv.iot.lab9.repo.CoffeeRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @ApplicationScope
 public class CoffeeService {
 
-    private AtomicInteger id = new AtomicInteger(0);
-    Map<Integer, Coffee> coffeeMap = new HashMap<>();
+    @Autowired
+    private CoffeeRepository coffeeRepository;
 
     public Coffee addCoffee(Coffee coffee) {
-        int orderId = id.incrementAndGet();
-        coffee.setId(orderId);
-        coffeeMap.put(orderId, coffee);
+        coffeeRepository.save(coffee);
         return coffee;
     }
 
     public List<Coffee> getAllCoffee() {
-        return new ArrayList<>(coffeeMap.values());
+        return (List<Coffee>) coffeeRepository.findAll();
     }
 
     public Coffee getCoffee(Integer id) {
-        return coffeeMap.get(id);
+        return coffeeRepository.findById(id).orElse(null);
     }
 
     public Coffee updateCoffee(Coffee coffee) {
-        coffeeMap.put(coffee.getId(), coffee);
+        coffeeRepository.save(coffee);
         return coffee;
     }
 
     public Coffee deleteCoffee(Integer id) {
-        return coffeeMap.remove(id);
+        Coffee coffee = coffeeRepository.findById(id).orElse(null);
+        coffeeRepository.deleteById(id);
+        return coffee;
     }
 }
